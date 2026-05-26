@@ -1,0 +1,10 @@
+Aerodynamic Metrics Interpretation
+==================================
+Final drag coefficient proxy: 0.340
+Final lift coefficient proxy: -0.018
+Final residual proxy: 6.56e-05
+
+A lower drag coefficient generally indicates less aerodynamic resistance.
+A negative lift coefficient indicates downforce in this educational example.
+A decreasing residual trend suggests the numerical solution is stabilizing.
+These sample values are generated for visualization practice, not validation.

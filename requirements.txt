@@ -1,0 +1,9 @@
+numpy>=1.26
+matplotlib>=3.8
+pyvista>=0.44
+vtk>=9.3
+pandas>=2.2
+imageio>=2.34
+imageio-ffmpeg>=0.5
+jupyter>=1.0
+notebook>=7.2
