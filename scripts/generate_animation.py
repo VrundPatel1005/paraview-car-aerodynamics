@@ -34,7 +34,8 @@ def generate_animation(input_path: str, output_format: str, frames: int) -> None
     require_array(mesh, "velocity_magnitude")
     require_array(mesh, "wake_indicator")
 
-    frame_paths = []
+    # Render every frame in memory; no temporary PNGs are written to disk.
+    rendered_frames = []
     plotter = _scene(mesh)
     center = (0.7, 0.0, 0.6)
     radius = 6.0
@@ -42,19 +43,17 @@ def generate_animation(input_path: str, output_format: str, frames: int) -> None
         theta = 2.0 * math.pi * frame / frames
         camera = (center[0] + radius * math.cos(theta), center[1] + radius * math.sin(theta), 2.65)
         plotter.camera_position = [camera, center, (0.0, 0.0, 1.0)]
-        frame_path = ANIMATIONS_DIR / f"rotation_frame_{frame:03d}.png"
-        plotter.screenshot(frame_path)
-        frame_paths.append(frame_path)
+        rendered_frames.append(plotter.screenshot(return_img=True))
     plotter.close()
 
     if output_format in {"gif", "both"}:
         gif_path = ANIMATIONS_DIR / "car_aerodynamics_rotation.gif"
-        imageio.mimsave(gif_path, [imageio.imread(path) for path in frame_paths], duration=0.07)
+        imageio.mimsave(gif_path, rendered_frames, duration=0.07)
         print(f"Saved GIF animation to {gif_path}")
 
     if output_format in {"mp4", "both"}:
         mp4_path = ANIMATIONS_DIR / "car_aerodynamics_rotation.mp4"
-        imageio.mimsave(mp4_path, [imageio.imread(path) for path in frame_paths], fps=15)
+        imageio.mimsave(mp4_path, rendered_frames, fps=15)
         print(f"Saved MP4 animation to {mp4_path}")
 
 
