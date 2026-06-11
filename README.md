@@ -31,11 +31,29 @@ python scripts/generate_animation.py --input data/processed/sample_car_flow.vtu 
 python scripts/metrics_analysis.py --input data/processed/metrics.csv
 ```
 
+By default `setup_case.py` writes the flow field in three formats (`.vts`, `.vtu`,
+`.vtk`) so you can practice opening each in ParaView. To write just one, pass
+`--formats`:
+
+```bash
+python scripts/setup_case.py --formats vtu
+```
+
 Outputs are written to:
 
 - `data/processed/` for VTK datasets and CSV metrics
 - `screenshots/` for still scientific renderings
 - `animations/` for GIF/MP4 camera animations
+
+## Testing
+
+The data-generation core is covered by a small `pytest` smoke test that needs no
+ParaView/OpenGL and no downloaded data:
+
+```bash
+pip install pytest
+pytest
+```
 
 ## Example Visual Gallery
 

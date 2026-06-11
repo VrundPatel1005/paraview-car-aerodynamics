@@ -97,29 +97,42 @@ def main() -> None:
     parser.add_argument("--nx", type=int, default=72, help="Number of points in the streamwise direction.")
     parser.add_argument("--ny", type=int, default=40, help="Number of points across the car.")
     parser.add_argument("--nz", type=int, default=32, help="Number of points vertically.")
+    parser.add_argument(
+        "--formats",
+        nargs="+",
+        choices=["vts", "vtu", "vtk"],
+        default=["vts", "vtu", "vtk"],
+        help="Flow-field formats to write. Downstream scripts read .vtu by default; "
+        "the ParaView docs also use .vts/.vtk. Pass e.g. '--formats vtu' to write just one.",
+    )
     args = parser.parse_args()
 
     ensure_project_dirs()
     grid = build_flow_grid(args.nx, args.ny, args.nz)
     surface = car_surface()
+    root = PROCESSED_DIR.parents[0]
 
-    grid_path = PROCESSED_DIR / "sample_car_flow.vts"
-    unstructured_path = PROCESSED_DIR / "sample_car_flow.vtu"
+    formats = set(args.formats)
+    if "vts" in formats:
+        path = PROCESSED_DIR / "sample_car_flow.vts"
+        grid.save(path)
+        print(f"Saved flow field: {path.relative_to(root)}")
+    if "vtu" in formats:
+        path = PROCESSED_DIR / "sample_car_flow.vtu"
+        grid.cast_to_unstructured_grid().save(path)
+        print(f"Saved VTU field:  {path.relative_to(root)}")
+    if "vtk" in formats:
+        path = PROCESSED_DIR / "sample_car_flow.vtk"
+        grid.save(path)
+        print(f"Saved legacy VTK: {path.relative_to(root)}")
+
+    # The car body and metrics are always written; the visualization scripts need them.
     surface_path = PROCESSED_DIR / "sample_car_body.vtp"
-    legacy_path = PROCESSED_DIR / "sample_car_flow.vtk"
     metrics_path = PROCESSED_DIR / "metrics.csv"
-
-    grid.save(grid_path)
-    grid.cast_to_unstructured_grid().save(unstructured_path)
-    grid.save(legacy_path)
     surface.save(surface_path)
     write_metrics(metrics_path)
-
-    print(f"Saved flow field: {grid_path.relative_to(PROCESSED_DIR.parents[0])}")
-    print(f"Saved VTU field:  {unstructured_path.relative_to(PROCESSED_DIR.parents[0])}")
-    print(f"Saved legacy VTK: {legacy_path.relative_to(PROCESSED_DIR.parents[0])}")
-    print(f"Saved car body:   {surface_path.relative_to(PROCESSED_DIR.parents[0])}")
-    print(f"Saved metrics:    {metrics_path.relative_to(PROCESSED_DIR.parents[0])}")
+    print(f"Saved car body:   {surface_path.relative_to(root)}")
+    print(f"Saved metrics:    {metrics_path.relative_to(root)}")
 
 
 if __name__ == "__main__":
